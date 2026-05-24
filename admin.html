@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Lumière Dorée</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+  <style>
+    :root {
+      --noir: #0a0a0a;
+      --or: #c9a84c;
+      --or-clair: #e8cc7e;
+      --creme: #f5f0e8;
+      --gris: #888;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--noir);
+      color: var(--creme);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-box {
+      border: 1px solid rgba(201,168,76,0.2);
+      padding: 3rem;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      background: #111;
+    }
+    .login-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      color: var(--or);
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+    .login-logo span { font-style: italic; color: var(--or-clair); }
+    .login-sub {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--gris);
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--gris);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: #0a0a0a;
+      border: 1px solid rgba(201,168,76,0.2);
+      color: var(--creme);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.3s;
+    }
+    .form-group input:focus { border-color: var(--or); }
+    .btn-login {
+      width: 100%;
+      padding: 1rem;
+      background: none;
+      border: 1px solid var(--or);
+      color: var(--or);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+    .btn-login:hover { background: var(--or); color: var(--noir); }
+    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+    .erreur {
+      color: #e74c3c;
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .erreur.visible { display: block; }
+    .chargement {
+      color: var(--or);
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .chargement.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <div class="login-logo">Lumière <span>Dorée</span></div>
+    <div class="login-sub">Espace Administration</div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="votre@email.com" />
+    </div>
+
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" id="mot-de-passe" placeholder="••••••••" />
+    </div>
+
+    <button class="btn-login" id="btn-login" onclick="seConnecter()">Accéder</button>
+
+    <div class="erreur" id="erreur">Email ou mot de passe incorrect.</div>
+    <div class="chargement" id="chargement">Connexion en cours...</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    // Si déjà connecté, rediriger
+    async function verifierSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        window.location.href = "dashboard.html";
+      }
+    }
+    verifierSession();
+
+    // Connexion
+    async function seConnecter() {
+      const email = document.getElementById("email").value.trim();
+      const mdp = document.getElementById("mot-de-passe").value;
+
+      if (!email || !mdp) {
+        document.getElementById("erreur").textContent = "Remplis tous les champs !";
+        document.getElementById("erreur").classList.add("visible");
+        return;
+      }
+
+      const btn = document.getElementById("btn-login");
+      btn.disabled = true;
+      document.getElementById("chargement").classList.add("visible");
+      document.getElementById("erreur").classList.remove("visible");
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: mdp
+      });
+
+      btn.disabled = false;
+      document.getElementById("chargement").classList.remove("visible");
+
+      if (error) {
+        document.getElementById("erreur").textContent = "Email ou mot de passe incorrect.";
+        document.getElementById("erreur").classList.add("visible");
+        return;
+      }
+
+      window.location.href = "dashboard.html";
+    }
+
+    // Connexion avec Entrée
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("mot-de-passe").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") seConnecter();
+      });
+    });
+  </script>
+
+</body>
+</html>
