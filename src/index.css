@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-noir: #0a0a0a;
+  --color-or: #c9a84c;
+  --color-or-clair: #e8cc7e;
+  --color-creme: #f5f0e8;
+  --color-gris: #888888;
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Raleway", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-noir text-white font-sans font-light overflow-x-hidden antialiased;
+  }
+}
+
+@layer components {
+  .btn-or {
+    @apply relative inline-block overflow-hidden border border-or px-12 py-4 text-or no-underline text-[0.75rem] tracking-[0.3em] uppercase transition-colors duration-400;
+  }
+
+  .btn-or::before {
+    content: "";
+    @apply absolute inset-0 bg-or origin-left scale-x-0 transition-transform duration-400 ease-out -z-10;
+  }
+
+  .btn-or:hover {
+    @apply text-noir;
+  }
+
+  .btn-or:hover::before {
+    @apply scale-x-100;
+  }
+
+  .animate-scroll {
+    @apply opacity-0 translate-y-8 transition-all duration-700 ease-out;
+  }
+
+  .animate-scroll.visible {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 1.2s ease forwards;
+}
